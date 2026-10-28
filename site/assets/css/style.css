@@ -56,7 +56,8 @@ p { margin: 0 0 1.2em; }
 .header--solid { position: static; background: var(--dark-deep); }
 .header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .brand { text-decoration: none; display: inline-flex; align-items: center; gap: 12px; }
-.brand img { height: 44px; width: auto; }
+.brand img { height: 56px; width: auto; }
+@media (max-width: 640px) { .brand img { height: 46px; } }
 .brand-text { font-family: var(--sans); font-weight: 300; font-size: 1.45rem; line-height: 1.05; letter-spacing: .02em; }
 .nav { display: flex; gap: 28px; font-size: .95rem; letter-spacing: .04em; }
 .nav a { text-decoration: none; opacity: .85; }
