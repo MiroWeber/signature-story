@@ -1,0 +1,54 @@
+name: Deploy zu bunny.net
+
+# Lädt bei jedem Push auf main den Ordner site/ in die Bunny Storage Zone
+# und leert danach den CDN-Cache, damit Änderungen sofort sichtbar sind.
+#
+# Benötigte Repository-Secrets (Settings → Secrets and variables → Actions):
+#   BUNNY_STORAGE_ZONE      Name der Storage Zone, z. B. signature-story
+#   BUNNY_STORAGE_PASSWORD  Storage Zone → FTP & API Access → Password
+#   BUNNY_STORAGE_HOST      Storage-Endpunkt der Region, z. B. storage.bunnycdn.com (Falkenstein)
+#   BUNNY_PULLZONE_ID       ID der Pull Zone (steht in der URL der Pull Zone im Dashboard)
+#   BUNNY_API_KEY           Account → API Key (nur für das Leeren des Caches)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dateien hochladen
+        env:
+          ZONE: ${{ secrets.BUNNY_STORAGE_ZONE }}
+          PASS: ${{ secrets.BUNNY_STORAGE_PASSWORD }}
+          HOST: ${{ secrets.BUNNY_STORAGE_HOST }}
+        run: |
+          set -euo pipefail
+          cd site
+          find . -type f -print0 | while IFS= read -r -d '' f; do
+            path="${f#./}"
+            echo "→ $path"
+            curl --fail --silent --show-error --retry 3 \
+              -X PUT "https://${HOST}/${ZONE}/${path}" \
+              -H "AccessKey: ${PASS}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"$f" > /dev/null
+          done
+
+      - name: CDN-Cache leeren
+        env:
+          PZ: ${{ secrets.BUNNY_PULLZONE_ID }}
+          KEY: ${{ secrets.BUNNY_API_KEY }}
+        run: |
+          curl --fail --silent --show-error -X POST \
+            "https://api.bunny.net/pullzone/${PZ}/purgeCache" \
+            -H "AccessKey: ${KEY}" -H "Content-Type: application/json"
+          echo "Cache geleert."
