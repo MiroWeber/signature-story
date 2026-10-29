@@ -141,3 +141,6 @@ p { margin: 0 0 1.2em; }
   html { scroll-behavior: auto; }
   .hero video { display: none; }
 }
+
+.h1-sub { display: block; margin-top: .9em; font-family: var(--sans); font-weight: 300; font-size: clamp(.95rem, 1.6vw, 1.1rem); letter-spacing: .08em; text-transform: uppercase; opacity: .85; line-height: 1.5; }
+.hero .claim { margin-top: .4em; }
