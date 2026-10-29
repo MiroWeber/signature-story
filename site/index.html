@@ -38,9 +38,26 @@
 
   <section class="hero" aria-label="Einleitung">
     <img class="hero-poster" src="/assets/img/hero-poster.jpg" alt="">
-    <video autoplay muted loop playsinline preload="metadata" poster="/assets/img/hero-poster.jpg" aria-hidden="true">
-      <source src="/assets/video/hero.mp4" type="video/mp4">
+    <video id="hero-video" autoplay muted loop playsinline preload="metadata" poster="/assets/img/hero-poster.jpg" aria-hidden="true">
+      <source src="https://vz-a8c26d72-bd4.b-cdn.net/c0839c3a-8232-487b-87e0-ab23558bc181/play_720p.mp4" type="video/mp4">
     </video>
+    <script>
+      /* Hero-Video aus Bunny Stream: Safari/iOS bekommt den adaptiven HLS-Stream,
+         alle anderen eine MP4 passend zur Bildschirmbreite. */
+      (function () {
+        var v = document.getElementById('hero-video');
+        var base = 'https://vz-a8c26d72-bd4.b-cdn.net/c0839c3a-8232-487b-87e0-ab23558bc181/';
+        var src;
+        if (v.canPlayType('application/vnd.apple.mpegurl')) {
+          src = base + 'playlist.m3u8';
+        } else {
+          var w = window.innerWidth * (window.devicePixelRatio || 1);
+          src = base + (w > 1400 ? 'play_1080p.mp4' : w > 900 ? 'play_720p.mp4' : 'play_480p.mp4');
+        }
+        v.src = src;
+        v.play && v.play().catch(function () {});
+      })();
+    </script>
     <div class="wrap">
       <h1>Ihr Leben.<br>Ihr Film.</h1>
       <p class="claim">Unverwechselbar. Berührend. Echt.</p>
